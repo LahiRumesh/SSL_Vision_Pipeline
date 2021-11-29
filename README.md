@@ -84,9 +84,7 @@
 
     - --dir_name : folder path which contians unlabeld images
 
-    - --conf_thresh : validation data split
-
-    - --epochs :confident threshold value
+    - --conf_thresh : confident threshold value
 
     - --iou_thresh : IOU threshold value
 
