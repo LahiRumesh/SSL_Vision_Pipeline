@@ -1,16 +1,20 @@
 import os
 import torch
 from torch.utils.data import DataLoader
-from torch import optim
+from torch import mode, optim
 from tqdm.auto import tqdm
 from collections import deque
-
+import cv2
+import numpy as np
+import pandas as pd
 #import yolov4 utils
 from yolov4.cfg import Cfg as cfg
 from yolov4.train import Yolo_loss,collate,evaluate
 from yolov4.dataset import Yolo_dataset
 from yolov4.models import Yolov4
 from yolov4.tool.tv_reference.utils import collate_fn as val_collate
+from yolov4.tool.torch_utils import do_detect
+from yolov4.tool.utils import load_class_names
 from tensorboardX import SummaryWriter
 import wandb
 
@@ -208,6 +212,103 @@ class YoloV4model():
                     
 
         writer.close()
+
+
+
+class Yolov4Inference():
+    '''
+    YOLOV4 inference with PyTorch weights which use for pseudo labeling
+    
+    '''
+    
+    def __init__(self,
+                class_file,
+                weightfile,
+                use_cuda = True) -> None:
+        
+
+        self.class_file = class_file
+        self.weightfile = weightfile
+        self.use_cuda = use_cuda
+
+
+    def getImageList(self,
+                        dirName,
+                        endings=['.jpg','.jpeg','.png','.JPG']):
+
+        listOfFile = os.listdir(dirName)
+        allFiles = list()
+
+        for i,ending in enumerate(endings):
+            if ending[0]!='.':
+                endings[i] = '.'+ending
+        # Iterate over all the entries
+        for entry in listOfFile:
+            # Create full path
+            fullPath = os.path.join(dirName, entry)
+            # If entry is a directory then get the list of files in this directory 
+            if os.path.isdir(fullPath):
+                allFiles = allFiles + self.getImageList(fullPath,endings)
+            else:
+                for ending in endings:
+                    if entry.endswith(ending):
+                        allFiles.append(fullPath)               
+        return allFiles  
+        
+
+    def getDetails(self,
+                        img,
+                        boxes,
+                        class_names=None):
+
+        img = np.copy(img)   
+        width = img.shape[1]
+        height = img.shape[0]
+
+        out_prediction = []
+        for i in range(len(boxes)):
+            box = boxes[i]
+            x1 = int(box[0] * width) if int(box[0] * width) > 0 else 0
+            y1 = int(box[1] * height) if int(box[1] * height) > 0 else 0#int(box[1] * height)
+            x2 = int(box[2] * width) if int(box[2] * width) > 0 else 0#int(box[2] * width)
+            y2 = int(box[3] * height) if int(box[3] * height) > 0 else 0#int(box[3] * height)
+            out_prediction.append([x1,y1,x2,y2,class_names[box[6]]])
+
+        return out_prediction
+
+
+    def pseduolabel(self,dirName,img_size,
+                            conf_thresh = 0.4,
+                            iou_thresh=0.2):
+
+        n_classes = len(get_classes(self.class_file))
+        model = Yolov4(yolov4conv137weight=None, n_classes=n_classes,inference=True)
+        pretrained_dict = torch.load(self.weightfile, map_location=torch.device('cuda'))
+        model.load_state_dict(pretrained_dict)
+
+        if self.use_cuda:
+            model.cuda()
+
+        input_paths = self.getImageList(dirName)
+        input_image_paths = [] 
+    
+        for img in input_paths:
+            input_image_paths.append(img)
+
+        out_df = pd.DataFrame(columns=['image','xmin', 'ymin', 'xmax', 'ymax', 'label'])
+
+        for imgfile in tqdm(input_image_paths):
+            img = cv2.imread(imgfile)
+            sized = cv2.resize(img, (img_size[0], img_size[1]))
+            sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
+            boxes = do_detect(model, sized, conf_thresh, iou_thresh, self.use_cuda)
+            class_names = load_class_names(self.class_file)
+            out_prediction = self.getDetails(img,boxes[0],class_names=class_names)
+
+            for pred in out_prediction:
+                out_df = out_df.append(pd.DataFrame([[os.path.basename(imgfile)]+pred],columns=['image','xmin', 'ymin', 'xmax', 'ymax', 'label']))
+
+        out_df.to_csv(os.path.join(dirName,'psedo_data.csv'),index=False)
 
 
 
