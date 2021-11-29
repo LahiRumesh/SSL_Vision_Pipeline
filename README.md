@@ -72,7 +72,7 @@
     - --device : cuda device, i.e. 0 or 0,1,2,3 or cpu
 
 
-### Pytorch model Inference with Pseudo Labeling models  
+### Pytorch model Inference with Pseudo Labeling   
 
 - Use the **run_pseudolabelprocess.py** script to for the pseudo labeling 
 
