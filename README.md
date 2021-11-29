@@ -53,7 +53,7 @@
 
 - Training arguments for the model training.
 
-    - --model : Object detection model, i.e. YOLOv4 or YOLOv3 
+    - --model : object detection model, i.e. YOLOv4 or YOLOv3 
 
     - --data_dir : Image folder which contains images and the csv file
 
@@ -70,6 +70,28 @@
     - --learning_rate: learning rate
 
     - --device : cuda device, i.e. 0 or 0,1,2,3 or cpu
+
+
+### Pytorch model Inference with Pseudo Labeling models  
+
+- Use the **run_pseudolabelprocess.py** script to for the pseudo labeling 
+
+- Inference arguments for the pseudo labeling.
+
+    - --checkpoint : saved checkpoint weight file path 
+
+    - --class_file : class file which contains class names i.e class.names
+
+    - --dir_name : folder path which contians unlabeld images
+
+    - --conf_thresh : validation data split
+
+    - --epochs :confident threshold value
+
+    - --iou_thresh : IOU threshold value
+
+    - --image_size : test image size (should be multiply by 32  i.e (416,416),(512,512) or (608,608) )
+
 
 
 ### Reference:
