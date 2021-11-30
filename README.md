@@ -1,4 +1,4 @@
-## Pseudo Labeling with Object Detection
+## Semi-Supervised Pseudo Labeling with Object Detection Models
 
 - Images Capturing Pipeline
 
