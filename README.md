@@ -49,7 +49,7 @@
                 image2.jpg
                 image3.jpg
                 annotation.csv
-- Use the **run_sslpipeline.py** script to  train YOLOv3 and YOLOv4 models 
+- Use the **train_models.py** script to  train YOLOv3 and YOLOv4 models 
 
 - Training arguments for the model training.
 
@@ -74,7 +74,7 @@
 
 ### Pytorch model Inference with Pseudo Labeling   
 
-- Use the **run_pseudolabelprocess.py** script to for the pseudo labeling 
+- Use the **pseudo_label.py** script to for the pseudo labeling 
 
 - Inference arguments for the pseudo labeling.
 
