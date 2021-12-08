@@ -36,8 +36,8 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='YOLOv4', help='Object detection model, i.e. YOLOv4 or YOLOv3')
-    parser.add_argument('--data_dir', type=str, default='/home/lahiru/Research/Msc/labelme_data/bbox/voc_data/goods_items', help='Image folder which contains images and the csv file')
-    parser.add_argument('--weights', type=str, default='/home/lahiru/Computer_Vision/Object_Detecion/YOLOv4/v2_pytorch/pytorch-YOLOv4/pth_weights/yolov4.conv.137.pth', help='pre-trained weights path')
+    parser.add_argument('--data_dir', type=str, default='/image_data', help='Image folder which contains images and the csv file')
+    parser.add_argument('--weights', type=str, default='yolov4.conv.137.pth', help='pre-trained weights path')
     parser.add_argument('--validation', type=float, default=0.1, help='validation data split')
     parser.add_argument('--epochs', type=int, default=50 ,help='number of epochs')
     parser.add_argument('--batch_size', type=int, default=2, help='batch size')
